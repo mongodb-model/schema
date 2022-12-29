@@ -1,8 +1,8 @@
-module.exports = (option = {}) => `'use strict';
+'use strict';
 
 /*
 |--------------------------------------------------------------------------
-| ${option.name} Schema
+| postschemas Schema
 |--------------------------------------------------------------------------
 |
 | Here we you may add more options (keys) to your schema.
@@ -14,7 +14,7 @@ const Schema  = require('@mongodb-model/db-schema');
 
 const {makeSchema}  = new Schema;
 
-module.exports = makeSchema("${option.name}",{
+module.exports = makeSchema("postschemas",{
 
     /*
     |--------------------------------------------------------------------------------
@@ -35,6 +35,4 @@ module.exports = makeSchema("${option.name}",{
     username: "string|min:2|max:10|required",
     email: "string|min:4|max:75|required|email",
 
-}, "${option.type}") ;
-`
-
+}, "object") ;
