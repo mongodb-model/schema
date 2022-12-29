@@ -20,7 +20,8 @@ const {join } = require('node:path');
 const {existsSync} = require('fs')
 
 const { exec } = require('node:child_process');
-const schema = require('./lib/schema')
+// const schema = require('./lib/schema')
+const schema = require('./lib/native')
 
 class Schema extends require("./base") {
   constructor(...arrayOfObjects) {
@@ -63,9 +64,9 @@ class Schema extends require("./base") {
   }
 
   checkForInstallation(){
-    // exec('npm list db-schema', (error, stdout, stderr) => {
+    // exec('npm list @mongodb-model/db-schema', (error, stdout, stderr) => {
     //   if (error) {
-    //     exec('npm link db-schema', (err, sto, sdi) => {
+    //     exec('yarn link @mongodb-model/db-schema', (err, sto, sdi) => {
     //         if(err) return error
     //         if(sto){
     //             console.log(sto)
@@ -145,7 +146,93 @@ class Schema extends require("./base") {
           }else{
             console.log(`\x1b[32m${this.cmd(command)}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
           }
-        
+        }
+      }else{
+        if(!existsSync(join(this.modelPath(command), `${this.modelName(command)}.js`))){
+          const writable = this.createWriteStream(join(this.modelPath(command), `${this.modelName(command)}.js`));
+          writable.write(schema({name: this.cmd(this.modelName(command)),options: {}, type: this.schemaType(type) }));
+          writable.end('');
+          console.log(`\x1b[32m${this.cmd(this.modelName(command))} schema successfully created!\x1b[0m`);
+        }else{
+          console.log(`\x1b[32m${this.cmd(this.modelName(command))}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+        }
+      }
+    }else{
+      return console.log('command make:schema', command)
+    }
+
+  }
+
+
+  // async makeSchema(command, type = 'object'){
+  //   if(command.startsWith('--schema=')){
+  //     command = command.split('--schema=')[1];
+  //   }
+  //   if(this.hasType){
+  //     this.checkForInstallation();
+  //     await this.addDirectory(this.modelPath(command));
+  //     if(!this.modelName(command) || this.modelName(command) === undefined){
+  //       if(command && command.split('/').length == 1){
+  //         if(!existsSync(join(this.modelPath(command), `${command}.js`))){
+  //           const writable = this.createWriteStream(join(this.modelPath(command), `${command}.js`));
+  //           writable.write(schema({name: this.cmd(command), options: {}, type: this.schemaType(type) }));
+  //           writable.end('');
+  //           console.log(`\x1b[32m${this.cmd(command)} schema successfully created!\x1b[0m`);
+  //         }else{
+  //           console.log(`\x1b[32m${this.cmd(command)}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+  //         }
+  //       }else{
+  //         if(!existsSync(join(this.modelPath(command), `${command.split('/').pop()}.js`))){
+  //           const writable = this.createWriteStream(join(this.modelPath(command), `${command.split('/').pop()}.js`));
+  //           writable.write(schema({name: this.cmd(command), options: {}, type: this.schemaType(type) }));
+  //           writable.end('');
+  //           console.log(`\x1b[32m${this.cmd(command)} schema successfully created!\x1b[0m`);
+  //         }else{
+  //           console.log(`\x1b[32m${this.cmd(command)}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+  //         }
+  //       }
+  //     }else{
+  //       if(!existsSync(join(this.modelPath(command), `${this.modelName(command)}.js`))){
+  //         const writable = this.createWriteStream(join(this.modelPath(command), `${this.modelName(command)}.js`));
+  //         writable.write(schema({name: this.cmd(this.modelName(command)),options: {}, type: this.schemaType(type) }));
+  //         writable.end('');
+  //         console.log(`\x1b[32m${this.cmd(this.modelName(command))} schema successfully created!\x1b[0m`);
+  //       }else{
+  //         console.log(`\x1b[32m${this.cmd(this.modelName(command))}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+  //       }
+  //     }
+  //   }else{
+  //     return console.log('command make:schema', command)
+  //   }
+
+  // }
+
+  async makeNativeSchema(command, type = 'object'){
+    if(command.startsWith('--schema=')){
+      command = command.split('--schema=')[1];
+    }
+    if(this.hasType){
+      this.checkForInstallation();
+      await this.addDirectory(this.modelPath(command));
+      if(!this.modelName(command) || this.modelName(command) === undefined){
+        if(command && command.split('/').length == 1){
+          if(!existsSync(join(this.modelPath(command), `${command}.js`))){
+            const writable = this.createWriteStream(join(this.modelPath(command), `${command}.js`));
+            writable.write(schema({name: this.cmd(command), options: {}, type: this.schemaType(type) }));
+            writable.end('');
+            console.log(`\x1b[32m${this.cmd(command)} schema successfully created!\x1b[0m`);
+          }else{
+            console.log(`\x1b[32m${this.cmd(command)}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+          }
+        }else{
+          if(!existsSync(join(this.modelPath(command), `${command.split('/').pop()}.js`))){
+            const writable = this.createWriteStream(join(this.modelPath(command), `${command.split('/').pop()}.js`));
+            writable.write(schema({name: this.cmd(command), options: {}, type: this.schemaType(type) }));
+            writable.end('');
+            console.log(`\x1b[32m${this.cmd(command)} schema successfully created!\x1b[0m`);
+          }else{
+            console.log(`\x1b[32m${this.cmd(command)}\x1b[0m\x1b[31m schema already exists!\x1b[0m`);
+          }
         }
       }else{
         if(!existsSync(join(this.modelPath(command), `${this.modelName(command)}.js`))){
